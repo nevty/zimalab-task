@@ -1,50 +1,46 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL:
-    "https://cors-anywhere.herokuapp.com/https://jobs.github.com/positions.json"
+  baseURL: "https://cors-anywhere.herokuapp.com/https://jobs.github.com/"
 });
+
+const urlParams = (page, description, location, full_time) => {
+  let params = new URLSearchParams();
+  if (description) params.append("description", description);
+  if (location) params.append("location", location);
+  if (full_time) params.append("full_time", full_time.toString());
+  params.append("page", page);
+  return { params };
+};
 
 export default {
   actions: {
-    async fetchJobs({ commit }, [page, description, location, full_time]) {
-      let params = new URLSearchParams();
-      if (description) params.append("description", description);
-      if (location) params.append("location", location);
-      if (full_time) params.append("full_time", full_time.toString());
-      params.append("page", page);
-      let request = { params };
-
-      const res = await instance
-        .get("", request)
-        .then(response => response.data);
-      commit("updateJobs", res);
-    },
     async preFetchJobs({ commit }, [description, location, full_time]) {
-      commit("setIsFetching", true);
-      let params = new URLSearchParams();
-      if (description) params.append("description", description);
-      if (location) params.append("location", location);
-      if (full_time) params.append("full_time", full_time.toString());
-      params.append("page", 1);
+      let request = urlParams(1, description, location, full_time);
 
-      let request = { params };
-      const res = await instance.get("", request).then(response => {
-        commit("setIsFetching", false);
-        return response.data;
-      });
-      commit("setJobs", res);
-    },
-    async fetchJob({ commit }, id) {
       commit("setIsFetching", true);
-      const res = await axios
-        .get(
-          `https://cors-anywhere.herokuapp.com/https://jobs.github.com/positions/${id}.json`
-        )
+      const res = await instance
+        .get("positions.json", request)
         .then(response => {
           commit("setIsFetching", false);
           return response.data;
         });
+      commit("setJobs", res);
+    },
+    async fetchJobs({ commit }, [page, description, location, full_time]) {
+      let request = urlParams(page, description, location, full_time);
+
+      const res = await instance
+        .get("positions.json", request)
+        .then(response => response.data);
+      commit("updateJobs", res);
+    },
+    async fetchJob({ commit }, id) {
+      commit("setIsFetching", true);
+      const res = await instance.get(`positions/${id}.json`).then(response => {
+        commit("setIsFetching", false);
+        return response.data;
+      });
       commit("setJob", res);
     }
   },
