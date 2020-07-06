@@ -50,6 +50,7 @@
       :current-pos="currentPos"
       :next="next"
       :prev="prev"
+      :isEmpty="isEmpty"
     />
   </div>
 </template>
@@ -69,7 +70,15 @@ export default {
     location: "",
     full_time: false
   }),
-  computed: mapGetters(["allJobs", "isFetching"]),
+  computed: {
+    ...mapGetters(["allJobs", "isFetching"]),
+    isEmpty: function() {
+      return (
+        this.allJobs.slice(this.currentPos, this.currentPos + this.step)
+          .length <= 9
+      );
+    }
+  },
   methods: {
     ...mapActions(["preFetchJobs", "fetchJobs"]),
     submit: function() {

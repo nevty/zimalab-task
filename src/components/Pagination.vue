@@ -15,6 +15,7 @@
       <v-btn
         :class="`${currentPos >= step ? 'ml-2' : 'ml-16'} pr-2`"
         depressed
+        v-show="!isEmpty"
         v-on:click="next"
       >
         Next
@@ -34,6 +35,6 @@ export default {
     svgArrowBack: mdiArrowLeft,
     svgArrowNext: mdiArrowRight
   }),
-  props: ["currentPos", "step", "next", "prev"]
+  props: ["currentPos", "step", "next", "prev", "isEmpty"]
 };
 </script>
